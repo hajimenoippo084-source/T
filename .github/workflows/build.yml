@@ -22,19 +22,16 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Instalar APKTool
+      - name: Descargar APKTool 3.0.3
         run: |
-          sudo apt-get update
-          sudo apt-get install -y apktool
+          curl -L \
+            https://github.com/iBotPeaches/Apktool/releases/download/v3.0.3/apktool_3.0.3.jar \
+            -o apktool.jar
 
       - name: Configurar Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
         with:
-          packages: platform-tools
-
-      - name: Instalar Build Tools
-        run: |
-          sdkmanager "build-tools;35.0.0"
+          packages: build-tools;35.0.0
 
       - name: Comprobar APK
         run: |
@@ -43,11 +40,14 @@ jobs:
 
       - name: Descompilar APK
         run: |
-          apktool d THRILL-KILL-ANDROID-MENU-MUSIC.apk -o decoded -f
+          java -jar apktool.jar d \
+            THRILL-KILL-ANDROID-MENU-MUSIC.apk \
+            -o decoded -f
 
       - name: Reconstruir APK
         run: |
-          apktool b decoded -o app-unsigned.apk
+          java -jar apktool.jar b decoded \
+            -o app-unsigned.apk
 
       - name: Crear firma
         run: |
@@ -75,11 +75,11 @@ jobs:
             --key-pass pass:android \
             --out THRILL-KILL-MOD.apk app-aligned.apk
 
-      - name: Verificar firma
+      - name: Verificar APK
         run: |
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify THRILL-KILL-MOD.apk
 
-      - name: Descargar APK compilado
+      - name: Guardar APK
         uses: actions/upload-artifact@v4
         with:
           name: THRILL-KILL-MOD
