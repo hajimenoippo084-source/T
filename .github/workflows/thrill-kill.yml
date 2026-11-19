@@ -1,0 +1,37 @@
+
+name: Construir Thrill Kill Android v1.6
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Preparar Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Extraer proyecto
+        run: |
+          unzip -o Thrill_Kill_Android_Project_v1_6_CORREGIDO.zip -d .
+
+      - name: Compilar APK
+        working-directory: ThrillKillAndroidProject
+        run: gradle assembleDebug
+
+      - name: Guardar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: THRILL-KILL-ANDROID-v1.6
+          path: ThrillKillAndroidProject/app/build/outputs/apk/debug/*.apk
+          
