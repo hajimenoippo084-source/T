@@ -18,20 +18,21 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: '17'
 
       - name: Instalar APKTool
         run: |
           sudo apt-get update
           sudo apt-get install -y apktool
 
-      - name: Instalar Android Build Tools
-        uses: android-actions/setup-android@v3
+      - name: Configurar Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: ''
 
-      - name: Instalar herramientas de compilación
+      - name: Instalar Build Tools
         run: |
           sdkmanager "build-tools;35.0.0"
-          yes | sdkmanager --licenses
 
       - name: Descompilar APK
         run: apktool d app-debug.apk -o decoded -f
@@ -51,7 +52,9 @@ jobs:
             -dname "CN=Android Debug,O=Android,C=US"
 
           BT="$ANDROID_HOME/build-tools/35.0.0"
+
           "$BT/zipalign" -p -f 4 app-unsigned.apk app-aligned.apk
+
           "$BT/apksigner" sign \
             --ks debug.keystore \
             --ks-pass pass:android \
