@@ -14,12 +14,24 @@ jobs:
       - name: Descargar repositorio
         uses: actions/checkout@v4
 
-      - name: Instalar herramientas
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Instalar APKTool
         run: |
           sudo apt-get update
           sudo apt-get install -y apktool
-          echo "y" | sdkmanager --licenses || true
+
+      - name: Instalar Android Build Tools
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar herramientas de compilación
+        run: |
           sdkmanager "build-tools;35.0.0"
+          yes | sdkmanager --licenses
 
       - name: Descompilar APK
         run: apktool d app-debug.apk -o decoded -f
@@ -46,8 +58,9 @@ jobs:
             --key-pass pass:android \
             --out THRILL-KILL-MOD.apk app-aligned.apk
 
-      - name: Descargar APK
+      - name: Guardar APK
         uses: actions/upload-artifact@v4
         with:
           name: THRILL-KILL-MOD
           path: THRILL-KILL-MOD.apk
+          
